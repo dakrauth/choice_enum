@@ -15,16 +15,20 @@ Operating System :: OS Independent
 Topic :: Software Development :: Libraries :: Python Modules
 '''.splitlines()
 
+with open('README.md') as fp:
+    long_description = fp.read()
+
+
 setup(
     name='django_choices',
     version=django_choices.__version__,
     author='David Krauth',
     author_email='dakrauth@gmail.com',
-    url='',
+    url='https://github.com/dakrauth/django_choices',
     license='MIT',
     platforms=['any'],
     py_modules=['django_choices'],
     description=django_choices.__doc__,
     classifiers=classifiers,
-    long_description=''''''
+    long_description=long_description
 )
