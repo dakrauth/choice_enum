@@ -2,7 +2,7 @@
 import os
 import sys
 from distutils.core import setup
-import django_choices
+import choice_enum
 
 classifiers = '''\
 Development Status :: 5 - Production/Stable
@@ -20,15 +20,15 @@ with open('README.md') as fp:
 
 
 setup(
-    name='django_choices',
-    version=django_choices.__version__,
+    name='choice_enum',
+    version=choice_enum.__version__,
     author='David Krauth',
     author_email='dakrauth@gmail.com',
-    url='https://github.com/dakrauth/django_choices',
+    url='https://github.com/dakrauth/choice_enum',
     license='MIT',
     platforms=['any'],
-    py_modules=['django_choices'],
-    description=django_choices.__doc__,
+    py_modules=['choice_enum'],
+    description=choice_enum.__doc__,
     classifiers=classifiers,
     long_description=long_description
 )
