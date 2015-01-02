@@ -1,4 +1,4 @@
-django_choices
-==============
+choice_enum
+===========
 
-Encapsulated choice options for Django `choices` on CharFields
+Encapsulated choice options for use in Django's `choices` on CharFields
