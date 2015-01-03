@@ -5,7 +5,7 @@ __version_info__ = (0, 2)
 __version__ = '.'.join(map(str, __version_info__))
 
 #===============================================================================
-class ChoiceOption(unicode):
+class Option(unicode):
     '''
     An enumeration instance "factory"
     '''
@@ -13,10 +13,10 @@ class ChoiceOption(unicode):
     
     #---------------------------------------------------------------------------
     def __new__(cls, value, display, default=False):
-        u = super(ChoiceOption, cls).__new__(cls, value)
+        u = super(Option, cls).__new__(cls, value)
         u.display = display
         u.default = default
-        u.rank = next(ChoiceOption._counter)
+        u.rank = next(Option._counter)
         return u
         
     #---------------------------------------------------------------------------
@@ -38,8 +38,13 @@ class ChoiceEnumMetaclass(type):
         choices = []
         new_attrs = {}
         default = None
+        reserved = ('ALL_OPTIONS', 'CHOICES', 'CHOICES_DICT', 'DEFAULT')
+        
         for key, value in attrs.iteritems():
-            if isinstance(value, ChoiceOption):
+            if key in reserved:
+                raise ValueError('"%s" is reserved')
+                
+            if isinstance(value, Option):
                 u = unicode(value)
                 if value.default:
                     if default is not None:
@@ -76,46 +81,48 @@ class ChoiceEnumeration(object):
     
     Example::
 
-        class Markup(models.Model):
+        class SomeModel(models.Model):
 
-            # ``Format`` scoped here under the Markup class, but could have been a 
-            # declared at the module level as well
+            # ``MetaVar`` scoped here under the SomeModel class, but could have
+            # been declared at the module level as well
 
-            class Format(ChoiceEnumeration):
-                TEXT      = ChoiceEnumeration.Option('text',  'Plain Text')
-                BASIC     = ChoiceEnumeration.Option('basc',  'Basic')
-                MARKDOWN  = ChoiceEnumeration.Option('mkdn',  'Markdown', default=True)
-                RST       = ChoiceEnumeration.Option('rest',  'reStructured')
-                HTML      = ChoiceEnumeration.Option('html',  'HTML')
+            class MetaVar(ChoiceEnumeration):
+                FOO  = ChoiceEnumeration.Option('foo',  'Foo Choice', default=True)
+                BAR  = ChoiceEnumeration.Option('bar',  'Bar Option')
+                BAZ  = ChoiceEnumeration.Option('baz',  'Baz Pick')
+                SPAM = ChoiceEnumeration.Option('spam', 'Spam spam spam')
+                EGGS = ChoiceEnumeration.Option('eggs', 'Eggs, Spam, and Ham')
 
             text = models.TextField()
-            format = models.CharField(
-                choices=Format.CHOICES,
-                default=Format.DEFAULT,
-                max_length=4
-            )
+            metavar = models.CharField(max_length=4, choices=MetaVar.CHOICES, default=MetaVar.DEFAULT)
     
     Example interactive usage::
 
-        >>> from annotation.models import Markup
-        >>> m = Markup.objects.create(format=Markup.Format.MARKDOWN, text='Hello\n=====\n\nFoo!')
-        >>> m.format
+        >>> from myapp.models import SomeModel
+        >>> m = SomeModel.objects.create(metavar=Markup.Format.FOO, text='Hello, World!')
+        >>> m.metavar
+        u'foo'
+        >>> Markup.MetaVar.FOO
+        u'foo'
+        >>> Markup.MetaVar.ALL_OPTIONS
+        (u'foo', u'bar', u'baz', u'spam', u'eggs')
+        >>> Markup.MetaVar.CHOICES
+        ((u'foo', 'Plain Text'), (u'basc', 'Basic'), (u'mkdn', 'Markdown'), (u'rest', 'reStructured'), (u'html', 'HTML'))
+        ((u'foo', 'Foo Choice'), (u'bar', 'Bar Option'), (u'baz', 'Baz Pick'), (u'spam', 'Spam spam spam'), (u'eggs', 'Eggs, Spam, and Ham'))
+        >>> Markup.MetaVar.CHOICES_DICT
+        {u'foo': 'Foo Choice', u'bar': 'Bar Option', u'baz': 'Baz Pick', u'spam': 'Spam spam spam', u'eggs': 'Eggs, Spam, and Ham'}
+        >>> Markup.MetaVar.DEFAULT
         u'mkdn'
-        >>> Markup.Format.MARKDOWN
-        u'mkdn'
-        >>> Markup.Format.ALL_OPTIONS
-        (u'text', u'basc', u'mkdn', u'rest', u'html')
-        >>> Markup.Format.CHOICES
-        ((u'text', 'Plain Text'), (u'basc', 'Basic'), (u'mkdn', 'Markdown'), (u'rest', 'reStructured'), (u'html', 'HTML'))
-        >>> Markup.Format.CHOICES_DICT
-        {u'text': 'Plain Text', u'mkdn': 'Markdown', u'html': 'HTML', u'basc': 'Basic', u'rest': 'reStructured'}
-        >>> Markup.Format.DEFAULT
-        u'mkdn'
-        >>> m.format == Markup.Format.MARKDOWN
+        >>> m.metavar == Markup.MetaVar.Foo
         True
-        >>> Markup.Format.CHOICES_DICT[m.format]
-        'Markdown'
+        >>> Markup.MetaVar.CHOICES_DICT[m.metavar]
+        'Foo'
         
     '''
     __metaclass__ = ChoiceEnumMetaclass
-    Option = ChoiceOption
+    Option = Option
+
+
+#-------------------------------------------------------------------------------
+def make_options(cls_name, **kws):
+    return type(name, (ChoiceEnumeration,), kws)
