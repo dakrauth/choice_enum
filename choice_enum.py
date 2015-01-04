@@ -66,18 +66,19 @@ class ChoiceEnumMetaclass(type):
 #===============================================================================
 class ChoiceEnumeration(object):
     '''
-    Takes the following format::
+    
+    ``ChoiceEnumeration`` should be derived taking the following format::
     
         class ChoiceClass(ChoiceEnumeration):
-            CLASS_ATTR1 = ChoiceEnumeration.Option('db_value1', 'Human readable text 1')
-            CLASS_ATTR2 = ChoiceEnumeration.Option('db_value2', 'Human readable text 2')
+            ATTR1 = ChoiceEnumeration.Option('db_value1', 'Human readable text 1')
+            ATTR2 = ChoiceEnumeration.Option('db_value2', 'Human readable text 2')
     
     The following attributes are generated on the ChoiceEnumeration child class:
 
-    * ALL_OPTIONS  - a tuple of the supplied options
-    * CHOICES      - a Django char field choices-compatible tuple
-    * CHOICES_DICT - a dictionary of option:text values
-    * DEFAULT      - (optional) the item marked as default
+    - ``ALL_OPTIONS``  - a tuple of the supplied options
+    - ``CHOICES``      - a Django char field choices-compatible tuple
+    - ``CHOICES_DICT`` - a dictionary of option:text values
+    - ``DEFAULT``      - (optional) the item marked as default
     
     Example::
 
@@ -124,5 +125,17 @@ class ChoiceEnumeration(object):
 
 
 #-------------------------------------------------------------------------------
-def make_options(cls_name, **kws):
-    return type(name, (ChoiceEnumeration,), kws)
+def make_enum_class(cls_name, **kws):
+    '''
+    ``make_enum_class`` dynamically generates a ``ChoiceEnumeration`` derived class.
+    
+    Example::
+    
+        from choice_enum import make_enum_class, Option
+        MetaVar = make_enum_class('MetaVar',
+            FOO=Option('foo',  'Foo Choice', default=True),
+            BAR=Option('bar',  'Bar Option'),
+            BAZ=Option('baz',  'Baz Pick')
+        )
+    '''
+    return type(cls_name, (ChoiceEnumeration,), kws)
