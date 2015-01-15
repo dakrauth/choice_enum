@@ -31,7 +31,6 @@ A typical Django example would look like::
             EGGS = ChoiceEnumeration.Option('eggs', 'Eggs, Spam, and Ham')
 
 Example interactive usage::
-
     >>> class MetaVar(ChoiceEnumeration):
     ...     FOO  = ChoiceEnumeration.Option('foo',  'Foo Choice', default=True)
     ...     BAR  = ChoiceEnumeration.Option('bar',  'Bar Option')
@@ -50,7 +49,7 @@ Example interactive usage::
     u'foo'
     >>> MetaVar.CHOICES_DICT[MetaVar.FOO]
     'Foo Choice'
-
+    
 make_enum_class
 ---------------
 

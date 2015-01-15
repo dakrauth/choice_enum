@@ -1,7 +1,7 @@
 '''Wrapper class for defining DRY, encapsulated choice options for CharFields.'''
 import itertools
 
-__version_info__ = (0, 2)
+__version_info__ = (0, 2, 1)
 __version__ = '.'.join(map(str, __version_info__))
 
 #===============================================================================
