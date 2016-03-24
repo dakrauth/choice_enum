@@ -1,11 +1,12 @@
 '''Wrapper class for defining DRY, encapsulated choice options for CharFields.'''
 import itertools
+import six
 
-__version_info__ = (0, 2, 1)
+__version_info__ = (0, 3)
 __version__ = '.'.join(map(str, __version_info__))
 
 #===============================================================================
-class Option(unicode):
+class Option(six.text_type):
     '''
     An enumeration instance "factory"
     '''
@@ -24,7 +25,7 @@ class Option(unicode):
         '''
         Need this so that cloned querysets can effectively copy the instance
         '''
-        obj = unicode(self)
+        obj = six.text_type(self)
         memo[id(self)] = obj
         return obj
 
@@ -40,12 +41,12 @@ class ChoiceEnumMetaclass(type):
         default = None
         reserved = ('ALL_OPTIONS', 'CHOICES', 'CHOICES_DICT', 'DEFAULT')
         
-        for key, value in attrs.iteritems():
+        for key, value in attrs.items():
             if key in reserved:
-                raise ValueError('"%s" is reserved')
+                raise ValueError('"{}" is reserved'.format(key))
                 
             if isinstance(value, Option):
-                u = unicode(value)
+                u = six.text_type(value)
                 if value.default:
                     if default is not None:
                         raise ValueError('Only one default option allowed')
@@ -64,7 +65,7 @@ class ChoiceEnumMetaclass(type):
 
 
 #===============================================================================
-class ChoiceEnumeration(object):
+class ChoiceEnumeration(six.with_metaclass(ChoiceEnumMetaclass, object)):
     '''
     ``ChoiceEnumeration`` class can be declared at the module or class level in 
     the following format::
@@ -97,21 +98,22 @@ class ChoiceEnumeration(object):
         ...     BAZ  = ChoiceEnumeration.Option('baz',  'Baz Pick')
         ...     SPAM = ChoiceEnumeration.Option('spam', 'Spam spam spam')
         ...     EGGS = ChoiceEnumeration.Option('eggs', 'Eggs, Spam, and Ham')
-        >>> MetaVar.FOO
-        u'foo'
-        >>> MetaVar.ALL_OPTIONS
-        (u'foo', u'bar', u'baz', u'spam', u'eggs')
-        >>> MetaVar.CHOICES
-        ((u'foo', 'Foo Choice'), (u'bar', 'Bar Option'), (u'baz', 'Baz Pick'), (u'spam', 'Spam spam spam'), (u'eggs', 'Eggs, Spam, and Ham'))
-        >>> MetaVar.CHOICES_DICT
-        {u'baz': 'Baz Pick', u'eggs': 'Eggs, Spam, and Ham', u'foo': 'Foo Choice', u'bar': 'Bar Option', u'spam': 'Spam spam spam'}
-        >>> MetaVar.DEFAULT
-        u'foo'
-        >>> MetaVar.CHOICES_DICT[MetaVar.FOO]
-        'Foo Choice'
+        >>> MetaVar.FOO == 'foo'
+        True
+        >>> sorted(MetaVar.ALL_OPTIONS) == ['bar', 'baz', 'eggs', 'foo', 'spam']
+        True
+        >>> sorted(MetaVar.CHOICES) == [('bar', 'Bar Option'), ('baz', 'Baz Pick'), ('eggs', 'Eggs, Spam, and Ham'), ('foo', 'Foo Choice'), ('spam', 'Spam spam spam')]
+        True
+        >>> sorted(MetaVar.CHOICES_DICT.keys()) == ['bar', 'baz', 'eggs', 'foo', 'spam']
+        True
+        >>> sorted(MetaVar.CHOICES_DICT.values())
+        ['Bar Option', 'Baz Pick', 'Eggs, Spam, and Ham', 'Foo Choice', 'Spam spam spam']
+        >>> MetaVar.DEFAULT == 'foo'
+        True
+        >>> MetaVar.CHOICES_DICT[MetaVar.FOO] == 'Foo Choice'
+        True
         
     '''
-    __metaclass__ = ChoiceEnumMetaclass
     Option = Option
 
 

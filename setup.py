@@ -33,6 +33,8 @@ License :: OSI Approved :: MIT License
 Programming Language :: Python
 Programming Language :: Python :: 2
 Programming Language :: Python :: 2.7
+Programming Language :: Python :: 3
+Programming Language :: Python :: 3.5
 Operating System :: OS Independent
 Topic :: Software Development :: Libraries :: Python Modules
 '''.splitlines()
@@ -52,5 +54,6 @@ setup(
     py_modules=['choice_enum'],
     description=choice_enum.__doc__,
     classifiers=classifiers,
+    install_requires=['six'],
     long_description=long_description
 )
