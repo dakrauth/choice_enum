@@ -45,7 +45,7 @@ with open('README.rst') as fp:
 
 setup(
     name='choice_enum',
-    version="0.3",
+    version="0.3.1",
     author='David Krauth',
     author_email='dakrauth@gmail.com',
     url='https://github.com/dakrauth/choice_enum',
