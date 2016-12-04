@@ -2,7 +2,6 @@
 import os
 import sys
 from distutils.core import setup
-import choice_enum
 
 
 if sys.argv[-1] == 'publish':
@@ -11,11 +10,12 @@ if sys.argv[-1] == 'publish':
 elif sys.argv[-1] == 'readme':
     def dedent(text):
         return '\n'.join([line[4:] for line in text.splitlines()])
-    
+
     def header(text, sym):
         return '%s\n%s\n' % (text, sym * len(text))
 
     with open('README.rst', 'w') as fp:
+        import choice_enum
         fp.write('%s\n%s\n\n%s%s%s%s' % (
             header('choice_enum', '='),
             choice_enum.__doc__,
@@ -45,14 +45,14 @@ with open('README.rst') as fp:
 
 setup(
     name='choice_enum',
-    version=choice_enum.__version__,
+    version="0.3",
     author='David Krauth',
     author_email='dakrauth@gmail.com',
     url='https://github.com/dakrauth/choice_enum',
     license='MIT',
     platforms=['any'],
     py_modules=['choice_enum'],
-    description=choice_enum.__doc__,
+    description="Wrapper class for defining DRY, encapsulated choice options for CharFields.",
     classifiers=classifiers,
     install_requires=['six'],
     long_description=long_description

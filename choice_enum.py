@@ -1,9 +1,6 @@
-'''Wrapper class for defining DRY, encapsulated choice options for CharFields.'''
 import itertools
 import six
 
-__version_info__ = (0, 3)
-__version__ = '.'.join(map(str, __version_info__))
 
 #===============================================================================
 class Option(six.text_type):
