@@ -1,9 +1,12 @@
+'''Wrapper class for defining DRY, encapsulated choice options for CharFields.'''
 import itertools
-import six
+
+__version_info__ = (0, 9)
+__version__ = '.'.join(map(str, __version_info__))
 
 
 #===============================================================================
-class Option(six.text_type):
+class Option(str):
     '''
     An enumeration instance "factory"
     '''
@@ -11,7 +14,7 @@ class Option(six.text_type):
     
     #---------------------------------------------------------------------------
     def __new__(cls, value, display, default=False):
-        u = super(Option, cls).__new__(cls, value)
+        u = super().__new__(cls, value)
         u.display = display
         u.default = default
         u.rank = next(Option._counter)
@@ -22,7 +25,7 @@ class Option(six.text_type):
         '''
         Need this so that cloned querysets can effectively copy the instance
         '''
-        obj = six.text_type(self)
+        obj = str(self)
         memo[id(self)] = obj
         return obj
 
@@ -43,7 +46,7 @@ class ChoiceEnumMetaclass(type):
                 raise ValueError('"{}" is reserved'.format(key))
                 
             if isinstance(value, Option):
-                u = six.text_type(value)
+                u = str(value)
                 if value.default:
                     if default is not None:
                         raise ValueError('Only one default option allowed')
@@ -62,7 +65,7 @@ class ChoiceEnumMetaclass(type):
 
 
 #===============================================================================
-class ChoiceEnumeration(six.with_metaclass(ChoiceEnumMetaclass, object)):
+class ChoiceEnumeration(metaclass=ChoiceEnumMetaclass):
     '''
     ``ChoiceEnumeration`` class can be declared at the module or class level in 
     the following format::
