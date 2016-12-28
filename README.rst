@@ -3,6 +3,9 @@ choice_enum
 
 Wrapper class for defining DRY, encapsulated choice options for CharFields.
 
+* Versions >= 0.3.0,< 0.9.0 support Python 2 and 3
+* Versions >= 0.9.0 require Python 3.5+
+
 ChoiceEnumeration
 -----------------
 
