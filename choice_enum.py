@@ -1,26 +1,23 @@
 '''Wrapper class for defining DRY, encapsulated choice options for CharFields.'''
 import itertools
 
-__version_info__ = (0, 9)
+__version_info__ = (1, 0, 0)
 __version__ = '.'.join(map(str, __version_info__))
 
 
-#===============================================================================
 class Option(str):
     '''
     An enumeration instance "factory"
     '''
     _counter = itertools.count()
     
-    #---------------------------------------------------------------------------
-    def __new__(cls, value, display, default=False):
+    def __new__(cls, value, display='', default=False):
         u = super().__new__(cls, value)
         u.display = display
         u.default = default
         u.rank = next(Option._counter)
         return u
         
-    #---------------------------------------------------------------------------
     def __deepcopy__(self, memo):
         '''
         Need this so that cloned querysets can effectively copy the instance
@@ -30,10 +27,8 @@ class Option(str):
         return obj
 
 
-#===============================================================================
 class ChoiceEnumMetaclass(type):
     
-    #---------------------------------------------------------------------------
     def __new__(cls, name, bases, attrs):
         all_opts = []
         choices = []
@@ -47,6 +42,8 @@ class ChoiceEnumMetaclass(type):
                 
             if isinstance(value, Option):
                 u = str(value)
+                if not value.display:
+                    value.display = ' '.join(s.capitalize() for s in key.split('_'))
                 if value.default:
                     if default is not None:
                         raise ValueError('Only one default option allowed')
@@ -64,7 +61,6 @@ class ChoiceEnumMetaclass(type):
         return super(ChoiceEnumMetaclass, cls).__new__(cls, name, bases, new_attrs)
 
 
-#===============================================================================
 class ChoiceEnumeration(metaclass=ChoiceEnumMetaclass):
     '''
     ``ChoiceEnumeration`` class can be declared at the module or class level in 
@@ -87,7 +83,7 @@ class ChoiceEnumeration(metaclass=ChoiceEnumMetaclass):
             class MetaVar(ChoiceEnumeration):
                 FOO  = ChoiceEnumeration.Option('foo',  'Foo Choice', default=True)
                 BAR  = ChoiceEnumeration.Option('bar',  'Bar Option')
-                BAZ  = ChoiceEnumeration.Option('baz',  'Baz Pick')
+                BAZ  = ChoiceEnumeration.Option('baz')
                 SPAM = ChoiceEnumeration.Option('spam', 'Spam spam spam')
                 EGGS = ChoiceEnumeration.Option('eggs', 'Eggs, Spam, and Ham')
 
@@ -95,19 +91,19 @@ class ChoiceEnumeration(metaclass=ChoiceEnumMetaclass):
         >>> class MetaVar(ChoiceEnumeration):
         ...     FOO  = ChoiceEnumeration.Option('foo',  'Foo Choice', default=True)
         ...     BAR  = ChoiceEnumeration.Option('bar',  'Bar Option')
-        ...     BAZ  = ChoiceEnumeration.Option('baz',  'Baz Pick')
+        ...     BAZ  = ChoiceEnumeration.Option('baz')
         ...     SPAM = ChoiceEnumeration.Option('spam', 'Spam spam spam')
         ...     EGGS = ChoiceEnumeration.Option('eggs', 'Eggs, Spam, and Ham')
         >>> MetaVar.FOO == 'foo'
         True
         >>> sorted(MetaVar.ALL_OPTIONS) == ['bar', 'baz', 'eggs', 'foo', 'spam']
         True
-        >>> sorted(MetaVar.CHOICES) == [('bar', 'Bar Option'), ('baz', 'Baz Pick'), ('eggs', 'Eggs, Spam, and Ham'), ('foo', 'Foo Choice'), ('spam', 'Spam spam spam')]
+        >>> sorted(MetaVar.CHOICES) == [('bar', 'Bar Option'), ('baz', 'Baz'), ('eggs', 'Eggs, Spam, and Ham'), ('foo', 'Foo Choice'), ('spam', 'Spam spam spam')]
         True
         >>> sorted(MetaVar.CHOICES_DICT.keys()) == ['bar', 'baz', 'eggs', 'foo', 'spam']
         True
         >>> sorted(MetaVar.CHOICES_DICT.values())
-        ['Bar Option', 'Baz Pick', 'Eggs, Spam, and Ham', 'Foo Choice', 'Spam spam spam']
+        ['Bar Option', 'Baz', 'Eggs, Spam, and Ham', 'Foo Choice', 'Spam spam spam']
         >>> MetaVar.DEFAULT == 'foo'
         True
         >>> MetaVar.CHOICES_DICT[MetaVar.FOO] == 'Foo Choice'
@@ -117,7 +113,6 @@ class ChoiceEnumeration(metaclass=ChoiceEnumMetaclass):
     Option = Option
 
 
-#-------------------------------------------------------------------------------
 def make_enum_class(cls_name, **kws):
     '''
     ``make_enum_class`` dynamically generates a ``ChoiceEnumeration`` derived class.
@@ -134,7 +129,8 @@ def make_enum_class(cls_name, **kws):
     return type(cls_name, (ChoiceEnumeration,), kws)
 
 
-################################################################################
+###
+
 if __name__ == "__main__":
     import doctest
     doctest.testmod()
